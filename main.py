@@ -4,10 +4,8 @@ from pydantic import BaseModel
 
 from ai_reviewer import ai_review_pr
 
-# Create FastAPI app
 app = FastAPI()
 
-# Allow frontend to call backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -16,18 +14,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Define expected request body
 class PRRequest(BaseModel):
     title: str
     description: str
     code: str
 
-# API endpoint
 @app.post("/review")
 def review_pr(data: PRRequest):
-    result = ai_review_pr(
-        data.title,
-        data.description,
-        data.code
-    )
-    return result
+    return ai_review_pr(data.title, data.description, data.code)

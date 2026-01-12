@@ -1,131 +1,195 @@
-# AI-Based Pull Request Reviewer 🚀
+🧠 AI-Based GitHub Pull Request Reviewer
 
-An AI-powered prototype that automatically reviews GitHub Pull Requests by
-analyzing PR metadata and code changes, and then provides a merge recommendation.
+An AI-powered system that automatically reviews GitHub Pull Requests by analyzing code changes and providing merge recommendations.
+The project is deployed on AWS EC2 and integrates GitHub APIs with a Large Language Model (LLM).
 
-This project is inspired by recent research on automated code review,
-mining software repositories, and Large Language Models (LLMs) in software engineering.
+🚀 Project Overview
 
----
+When a Pull Request (PR) is created on GitHub, developers usually need to manually:
 
-## 🔍 Problem Statement
+Read the PR title and description
 
-Manual code review is time-consuming and error-prone.
-Developers need quick feedback on whether a pull request is safe to merge.
+Inspect code diffs
 
-This project demonstrates how:
-- GitHub Pull Request data can be fetched automatically
-- Code diffs can be analyzed
-- AI models can assist in code review decisions
+Decide whether it is safe to merge
 
----
+This project automates that process by:
 
-## 🎯 Objectives
+Fetching PR details from GitHub
 
-- Fetch real GitHub Pull Request data using GitHub REST API
-- Extract changed files and code diffs
-- Analyze PRs using AI-based reasoning
-- Provide a merge recommendation
-- Handle real-world issues like API quota limits safely
+Extracting code changes (diffs)
 
----
+Sending the information to an AI model
 
-## 🛠️ Tech Stack
+Returning a structured review and merge recommendation
 
-- **Python**
-- **GitHub REST API**
-- **OpenAI API (LLM-based review)**
-- **Git & GitHub**
-- Command Line Interface (CLI)
+🏗️ System Architecture (High Level)
+GitHub Pull Request
+        ↓
+GitHub REST API
+        ↓
+AWS EC2 (Python Application)
+        ↓
+AI Reviewer (LLM)
+        ↓
+Review Output / Merge Recommendation
 
----
+🔧 Technologies Used
 
-## ⚙️ Project Architecture
+Python 3
 
-main.py
-├── github_fetch.py → Fetches PR title, description & code diff
-├── reviewer.py → Rule-based reviewer (backup)
-└── ai_reviewer.py → LLM-based AI reviewer with safe fallback
+GitHub REST API
 
-yaml
-Copy code
+OpenAI API (LLM)
 
----
+AWS EC2 (Ubuntu)
 
-## 🔄 How the System Works
+python-dotenv (for environment variables)
 
-1. User provides a GitHub repository and Pull Request number
-2. The system fetches:
-   - PR title
-   - PR description
-   - Code diffs (patches)
-3. The AI reviewer analyzes the PR context and changes
-4. The system outputs:
-   - Merge decision
-   - Potential issues
-5. If AI quota is unavailable, a safe fallback message is shown
+requests (for API calls)
 
----
+📂 Project Structure
+ai-pr-reviewer/
+│
+├── main.py               # Entry point of the application
+├── github_fetch.py       # Fetches PR data and code diffs from GitHub
+├── ai_reviewer.py        # Sends PR data to AI and generates review
+├── requirements.txt      # Python dependencies
+├── README.md             # Project documentation
+└── .env                  # Environment variables (NOT committed)
 
-## 🤖 AI Integration Note
+⚙️ How the Project Works
+1️⃣ Fetch Pull Request Data
 
-This project integrates a real Large Language Model (LLM) using the OpenAI API.
+Uses GitHub REST API
 
-During testing, API quota limits may be reached.
-In such cases, the system:
-- Does NOT crash
-- Displays a professional fallback message
-- Demonstrates real-world AI system behavior
+Retrieves:
 
-This design choice reflects industry practices.
+PR title
 
----
+PR description
 
-## 🚨 Security Considerations
+Code diffs (patches)
 
-- API keys are **NOT hardcoded**
-- Secrets are removed before pushing to GitHub
-- `.gitignore` is used to avoid committing sensitive or generated files
+2️⃣ AI-Based Code Review
 
----
+PR details are sent to an LLM
 
-## 📌 Current Status
+AI analyzes:
 
-- ✅ GitHub PR fetching implemented
-- ✅ Code diff extraction implemented
-- ✅ AI-based review logic integrated
-- ✅ Safe fallback for AI unavailability
-- 🔄 Future enhancements planned
+Nature of changes
 
----
+Potential risks
 
-## 🚀 Future Scope
+Code quality
 
-- Environment variable based API key management
-- RAG (Retrieval Augmented Generation) using bug datasets
-- GitHub Action integration for automatic PR reviews
-- Evaluation using real PR datasets
-- UI or browser extension
+Returns:
 
----
+Summary
 
-## 🎓 Academic Relevance
+Issues (if any)
 
-This project is suitable for:
-- Final-year project
-- Mini-project
-- Research prototype
-- Demonstration of AI in Software Engineering
+Merge recommendation
 
----
+3️⃣ Safe Fallback Mechanism
 
-## 👩‍💻 Author
+If the AI API quota is exceeded or unavailable:
 
-**Avani Shinde**
+The application does not crash
 
----
+A fallback review is generated
 
-## 📄 License
+This ensures reliability and resilience
+
+
+🔐 Environment Variables
+
+Create a .env file in the project root:
+
+OPENAI_API_KEY=your_openai_api_key
+GITHUB_TOKEN=your_github_token   (optional for public repos)
+
+
+⚠️ Important
+
+Never commit .env
+
+Add .env to .gitignore
+
+☁️ Deployment on AWS EC2
+Steps Summary:
+
+Launch an Ubuntu EC2 instance (Free Tier)
+
+SSH into the instance
+
+Clone the GitHub repository
+
+Create and activate a Python virtual environment
+
+Install dependencies
+
+Run the application
+
+Commands Used:
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py
+
+🛑 Cost Management
+
+EC2 instances are billed only while running
+
+After testing, the instance should be stopped
+
+This prevents unnecessary cloud charges
+
+🧠 Key Features
+
+✔ Automated PR analysis
+✔ Real GitHub API integration
+✔ AI-based review generation
+✔ Graceful fallback on API quota exhaustion
+✔ Secure secret handling using environment variables
+✔ Deployed on cloud (AWS EC2)
+
+🧪 Example Output
+PR Title:
+Test PR for AI Reviewer
+
+AI Review:
+- The PR introduces documentation changes only.
+- No risky logic or structural changes detected.
+- Safe to merge.
+
+📌 Use Cases
+
+Faster code reviews
+
+Assisting junior developers
+
+CI/CD pipeline integration
+
+Learning project for cloud + AI integration
+
+📈 Future Enhancements
+
+GitHub Webhook integration
+
+FastAPI-based REST service
+
+Docker containerization
+
+Support for private repositories
+
+Azure / GCP deployment
+
+🧑‍💼 Interview / Manager Explanation (One-Liner)
+
+“I built and deployed an AI-based GitHub Pull Request reviewer on AWS EC2 that fetches PR diffs, evaluates them using an LLM, and includes a graceful fallback when API quota limits are exceeded.”
+
+📄 License
 
 This project is for educational and research purposes.
-Testing AI PR Reviewer
+79808012a74401db726836b2eecb832b74b4d99b
