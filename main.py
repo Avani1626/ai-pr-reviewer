@@ -1,28 +1,33 @@
-from github_fetch import get_pr_data
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
 from ai_reviewer import ai_review_pr
 
-print("Fetching Pull Request data...\n")
+# Create FastAPI app
+app = FastAPI()
 
-title, description, patches = get_pr_data()
+# Allow frontend to call backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-print("PR Title:")
-print(title)
+# Define expected request body
+class PRRequest(BaseModel):
+    title: str
+    description: str
+    code: str
 
-print("\nPR Description:")
-print(description)
-
-print("\nCODE CHANGES (DIFF):\n")
-
-if not patches:
-    print("No code changes available.")
-else:
-    for i, patch in enumerate(patches, start=1):
-        print(f"--- Patch {i} ---")
-        print(patch)
-
-print("\nRunning AI Review...\n")
-
-ai_result = ai_review_pr(title, description, patches)
-
-print(ai_result)
-
+# API endpoint
+@app.post("/review")
+def review_pr(data: PRRequest):
+    result = ai_review_pr(
+        data.title,
+        data.description,
+        data.code
+    )
+    return result
