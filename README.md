@@ -185,7 +185,78 @@ Support for private repositories
 
 Azure / GCP deployment
 
-🧑‍💼 Interview / Manager Explanation (One-Liner)
+# AI PR Reviewer 🚀
+
+A full-stack web application that reviews pull requests and recommends whether they are **SAFE TO MERGE** or **DO NOT MERGE** based on PR title, description, and code changes.
+
+Deployed on **AWS EC2** using:
+- FastAPI for backend
+- React + Vite for frontend
+- Nginx for serving frontend
+
+---
+
+## Tech Stack
+
+### Frontend
+- React
+- Vite
+- Axios
+- Nginx
+
+### Backend
+- FastAPI
+- Uvicorn
+- Python
+
+### Cloud
+- AWS EC2 (Amazon Linux)
+- Security Groups
+
+---
+
+## Features
+- Submit PR title, description, and code
+- Backend analyzes input for risky keywords
+- Returns merge recommendation
+- Fully deployed and accessible via public IP
+
+---
+
+## Project Structure
+
+ai-pr-reviewer/
+├── main.py
+├── reviewer.py
+├── frontend/
+│ ├── src/
+│ │ ├── components/
+│ │ │ ├── PRForm.jsx
+│ │ │ └── ReviewResult.jsx
+│ │ ├── services/
+│ │ │ └── api.js
+│ │ └── App.jsx
+│ └── dist/
+├── venv/
+└── README.md
+
+yaml
+Copy code
+
+---
+
+## Backend Setup
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install fastapi uvicorn
+uvicorn main:app --host 0.0.0.0 --port 8000
+Backend available at:
+
+arduino
+Copy code
+http://<PUBLIC_IP>:8000/docs
 
 “I built and deployed an AI-based GitHub Pull Request reviewer on AWS EC2 that fetches PR diffs, evaluates them using an LLM, and includes a graceful fallback when API quota limits are exceeded.”
 
