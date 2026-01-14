@@ -19,6 +19,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::368096590367:role/GitHubActionsOIDCRole
+
           aws-region: ap-south-1
 
       - name: Allowed action (List S3 buckets)
