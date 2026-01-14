@@ -1,0 +1,28 @@
+name: IAM OIDC Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test-iam:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<arn:aws:iam::368096590367:role/GitHubActionsOIDCRole>:role/GitHubActionsOIDCRole
+          aws-region: ap-south-1
+
+      - name: Allowed action (List S3 buckets)
+        run: aws s3 ls
+
+      - name: Forbidden action (Describe EC2)
+        run: aws ec2 describe-instances
