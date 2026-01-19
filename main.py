@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 from ai_reviewer import ai_review_pr
+from storage.s3_client import save_text, save_json
 
-app = FastAPI()
-
+app = FastAPI(title="AI PR Reviewer")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -14,11 +14,61 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class PRRequest(BaseModel):
+
+
+# ✅ Request body schema
+class PRPayload(BaseModel):
     title: str
     description: str
-    code: str
+    diff: str
+
+
+@app.get("/")
+def health_check():
+    return {"status": "AI PR Reviewer running"}
+
 
 @app.post("/review")
-def review_pr(data: PRRequest):
-    return ai_review_pr(data.title, data.description, data.code)
+def review_pr(payload: PRPayload):
+    # 1️⃣ Run AI review (existing logic – untouched)
+    result = ai_review_pr(
+        payload.title,
+        payload.description,
+        payload.diff
+    )
+
+    # 2️⃣ Save to S3 (new functionality – non-blocking)
+    try:
+        repo = "ai-pr-reviewer"
+        pr_id = int(datetime.utcnow().timestamp())
+
+        base_path = f"ai-pr-reviewer/prs/{repo}/{pr_id}"
+
+        # Save diff
+        save_text(
+            f"{base_path}/diff.txt",
+            payload.diff
+        )
+
+        # Save metadata
+        save_json(
+            f"{base_path}/metadata.json",
+            {
+                "title": payload.title,
+                "description": payload.description,
+                "reviewed_at": datetime.utcnow().isoformat()
+            }
+        )
+
+        # Save AI review result
+        save_json(
+            f"{base_path}/ai_review.json",
+            result
+        )
+
+    except Exception as e:
+        # App must NOT crash if S3 fails
+        print("⚠️ S3 upload failed:", e)
+
+    # 3️⃣ Return response as usual
+    return result
