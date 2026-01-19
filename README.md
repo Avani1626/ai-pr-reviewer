@@ -1,243 +1,60 @@
-🧠 AI-Based GitHub Pull Request Reviewer
+# AI PR Reviewer (Full Stack)
 
-An AI-powered system that automatically reviews GitHub Pull Requests by analyzing code changes and providing merge recommendations.
-The project is deployed on AWS EC2 and integrates GitHub APIs with a Large Language Model (LLM).
+An end-to-end **AI-powered Pull Request Reviewer** that allows users to submit PR details via a frontend UI, runs an automated AI code review on the backend, and stores all review artifacts in **Amazon S3** for auditability and history.
 
-🚀 Project Overview
+This project demonstrates a **real-world full-stack workflow** integrating **React, FastAPI, AI logic, and AWS S3**.
 
-When a Pull Request (PR) is created on GitHub, developers usually need to manually:
+---
 
-Read the PR title and description
+## 🚀 Features
 
-Inspect code diffs
+- 🖥️ React frontend for submitting PR details
+- ⚙️ FastAPI backend for processing PR reviews
+- 🤖 AI-based PR review logic (merge / do not merge recommendation)
+- ☁️ Amazon S3 storage for:
+  - Code diffs
+  - PR metadata
+  - AI review results
+- 🕒 Timestamped and versioned PR review history
+- 🔐 Secure AWS IAM-based access
+- 🌐 CORS-enabled frontend–backend communication
 
-Decide whether it is safe to merge
+---
 
-This project automates that process by:
+## 🏗️ Architecture
 
-Fetching PR details from GitHub
+React Frontend
+|
+| (POST /review)
+v
+FastAPI Backend
+|
+| AI Review Logic
+|
+v
+Amazon S3 (Versioned Storage)
 
-Extracting code changes (diffs)
+yaml
+Copy code
 
-Sending the information to an AI model
+---
 
-Returning a structured review and merge recommendation
+## 📂 Project Structure
 
-🏗️ System Architecture (High Level)
-GitHub Pull Request
-        ↓
-GitHub REST API
-        ↓
-AWS EC2 (Python Application)
-        ↓
-AI Reviewer (LLM)
-        ↓
-Review Output / Merge Recommendation
-
-🔧 Technologies Used
-
-Python 3
-
-GitHub REST API
-
-OpenAI API (LLM)
-
-AWS EC2 (Ubuntu)
-
-python-dotenv (for environment variables)
-
-requests (for API calls)
-
-📂 Project Structure
 ai-pr-reviewer/
 │
-├── main.py               # Entry point of the application
-├── github_fetch.py       # Fetches PR data and code diffs from GitHub
-├── ai_reviewer.py        # Sends PR data to AI and generates review
-├── requirements.txt      # Python dependencies
-├── README.md             # Project documentation
-└── .env                  # Environment variables (NOT committed)
-
-⚙️ How the Project Works
-1️⃣ Fetch Pull Request Data
-
-Uses GitHub REST API
-
-Retrieves:
-
-PR title
-
-PR description
-
-Code diffs (patches)
-
-2️⃣ AI-Based Code Review
-
-PR details are sent to an LLM
-
-AI analyzes:
-
-Nature of changes
-
-Potential risks
-
-Code quality
-
-Returns:
-
-Summary
-
-Issues (if any)
-
-Merge recommendation
-
-3️⃣ Safe Fallback Mechanism
-
-If the AI API quota is exceeded or unavailable:
-
-The application does not crash
-
-A fallback review is generated
-
-This ensures reliability and resilience
-
-
-🔐 Environment Variables
-
-Create a .env file in the project root:
-
-OPENAI_API_KEY=your_openai_api_key
-GITHUB_TOKEN=your_github_token   (optional for public repos)
-
-
-⚠️ Important
-
-Never commit .env
-
-Add .env to .gitignore
-
-☁️ Deployment on AWS EC2
-Steps Summary:
-
-Launch an Ubuntu EC2 instance (Free Tier)
-
-SSH into the instance
-
-Clone the GitHub repository
-
-Create and activate a Python virtual environment
-
-Install dependencies
-
-Run the application
-
-Commands Used:
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python main.py
-
-🛑 Cost Management
-
-EC2 instances are billed only while running
-
-After testing, the instance should be stopped
-
-This prevents unnecessary cloud charges
-
-🧠 Key Features
-
-✔ Automated PR analysis
-✔ Real GitHub API integration
-✔ AI-based review generation
-✔ Graceful fallback on API quota exhaustion
-✔ Secure secret handling using environment variables
-✔ Deployed on cloud (AWS EC2)
-
-🧪 Example Output
-PR Title:
-Test PR for AI Reviewer
-
-AI Review:
-- The PR introduces documentation changes only.
-- No risky logic or structural changes detected.
-- Safe to merge.
-
-📌 Use Cases
-
-Faster code reviews
-
-Assisting junior developers
-
-CI/CD pipeline integration
-
-Learning project for cloud + AI integration
-
-📈 Future Enhancements
-
-GitHub Webhook integration
-
-FastAPI-based REST service
-
-Docker containerization
-
-Support for private repositories
-
-Azure / GCP deployment
-
-# AI PR Reviewer 🚀
-
-A full-stack web application that reviews pull requests and recommends whether they are **SAFE TO MERGE** or **DO NOT MERGE** based on PR title, description, and code changes.
-
-Deployed on **AWS EC2** using:
-- FastAPI for backend
-- React + Vite for frontend
-- Nginx for serving frontend
-
----
-
-## Tech Stack
-
-### Frontend
-- React
-- Vite
-- Axios
-- Nginx
-
-### Backend
-- FastAPI
-- Uvicorn
-- Python
-
-### Cloud
-- AWS EC2 (Amazon Linux)
-- Security Groups
-
----
-
-## Features
-- Submit PR title, description, and code
-- Backend analyzes input for risky keywords
-- Returns merge recommendation
-- Fully deployed and accessible via public IP
-
----
-
-## Project Structure
-
-ai-pr-reviewer/
-├── main.py
-├── reviewer.py
+├── main.py # FastAPI application
+├── storage/
+│ ├── init.py
+│ └── s3_client.py # S3 upload helpers
+│
 ├── frontend/
 │ ├── src/
-│ │ ├── components/
-│ │ │ ├── PRForm.jsx
-│ │ │ └── ReviewResult.jsx
-│ │ ├── services/
-│ │ │ └── api.js
-│ │ └── App.jsx
-│ └── dist/
-├── venv/
+│ │ └── App.jsx # React UI
+│ ├── package.json
+│ └── vite.config.js
+│
+├── .gitignore
 └── README.md
 
 yaml
@@ -245,22 +62,77 @@ Copy code
 
 ---
 
-## Backend Setup
+## 🧪 How It Works (End-to-End Flow)
+
+1. User enters:
+   - PR title
+   - PR description
+   - Code diff (changes)
+2. React frontend sends data to FastAPI backend
+3. Backend:
+   - Runs AI-based review logic
+   - Generates merge recommendation
+4. Backend stores artifacts in S3:
+   - `diff.txt` → raw code changes
+   - `metadata.json` → PR title & description
+   - `ai_review.json` → AI decision
+5. AI response is returned to frontend and displayed to user
+
+---
+
+## ☁️ Amazon S3 Storage Format
+
+Each PR review is stored in a **timestamped folder**:
+
+ai-pr-reviewer/prs/ai-pr-reviewer/<timestamp>/
+├── diff.txt
+├── metadata.json
+└── ai_review.json
+
+yaml
+Copy code
+
+### Why this design?
+- Immutable audit trail
+- Easy rollback & history
+- Cost-effective long-term storage
+- Production-grade logging
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React (Vite)
+- JavaScript
+- Fetch API
+
+### Backend
+- Python
+- FastAPI
+- Uvicorn
+
+### Cloud & Storage
+- Amazon S3 (versioning enabled)
+- AWS IAM
+- Boto3 (AWS SDK for Python)
+
+---
+
+## ▶️ Running the Project Locally
+
+### 1️⃣ Start Backend
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install fastapi uvicorn
-uvicorn main:app --host 0.0.0.0 --port 8000
-Backend available at:
+python -m uvicorn main:app --port 8001
+Open Swagger:
 
 arduino
 Copy code
-http://<PUBLIC_IP>:8000/docs
-
-“I built and deployed an AI-based GitHub Pull Request reviewer on AWS EC2 that fetches PR diffs, evaluates them using an LLM, and includes a graceful fallback when API quota limits are exceeded.”
-
-📄 License
-
-This project is for educational and research purposes.
-79808012a74401db726836b2eecb832b74b4d99b
+http://127.0.0.1:8001/docs
+2️⃣ Start Frontend
+bash
+Copy code
+cd frontend
+npm install
+npm run dev
