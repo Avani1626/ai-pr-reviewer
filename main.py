@@ -4,6 +4,9 @@ from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from ai_reviewer import ai_review_pr
 from storage.s3_client import save_text, save_json
+from storage.s3_client import read_json, s3, BUCKET_NAME
+from fastapi import HTTPException
+from fastapi.responses import StreamingResponse
 
 app = FastAPI(title="AI PR Reviewer")
 app.add_middleware(
@@ -36,6 +39,40 @@ def review_pr(payload: PRPayload):
         payload.description,
         payload.diff
     )
+
+@app.get("/reviews/{timestamp}")
+def get_review(timestamp: str):
+    key = f"ai-pr-reviewer/prs/ai-pr-reviewer/{timestamp}/ai_review.json"
+
+    try:
+        data = read_json(key)
+        return {
+            "timestamp": timestamp,
+            "review": data
+        }
+    except Exception:
+        raise HTTPException(status_code=404, detail="Review not found")
+@app.get("/reviews/{timestamp}/diff")
+def download_diff(timestamp: str):
+    key = f"ai-pr-reviewer/prs/ai-pr-reviewer/{timestamp}/diff.txt"
+
+    try:
+        response = s3.get_object(
+            Bucket=BUCKET_NAME,
+            Key=key
+        )
+
+        return StreamingResponse(
+            response["Body"],
+            media_type="text/plain",
+            headers={
+                "Content-Disposition": f"attachment; filename=diff-{timestamp}.txt"
+            }
+        )
+
+    except Exception:
+        raise HTTPException(status_code=404, detail="Diff file not found")
+
 
     # 2️⃣ Save to S3 (new functionality – non-blocking)
     try:

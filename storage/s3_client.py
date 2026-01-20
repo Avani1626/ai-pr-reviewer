@@ -21,3 +21,26 @@ def save_json(key: str, data: dict):
         Body=json.dumps(data, indent=2),
         ContentType="application/json"
     )
+
+
+def read_text(key):
+    """
+    Reads a text file from S3 and returns it as a string
+    """
+    response = s3.get_object(
+        Bucket=BUCKET_NAME,
+        Key=key
+    )
+    return response["Body"].read().decode("utf-8")
+
+
+def read_json(key):
+    """
+    Reads a JSON file from S3 and returns it as a Python dictionary
+    """
+    response = s3.get_object(
+        Bucket=BUCKET_NAME,
+        Key=key
+    )
+    return json.loads(response["Body"].read().decode("utf-8"))
+
