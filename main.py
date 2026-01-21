@@ -73,6 +73,11 @@ def download_diff(timestamp: str):
     except Exception:
         raise HTTPException(status_code=404, detail="Diff file not found")
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 
     # 2️⃣ Save to S3 (new functionality – non-blocking)
     try:
