@@ -136,3 +136,10 @@ Copy code
 cd frontend
 npm install
 npm run dev
+
+## Run with Docker
+
+```bash
+docker pull avani16/ai-pr-reviewer:latest
+docker run -p 8000:8000 avani16/ai-pr-reviewer:latest
+
