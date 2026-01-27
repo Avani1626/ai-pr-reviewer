@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI-CD Pipeline for ai-pr-reviewer
 
 on:
   push:
@@ -6,40 +6,42 @@ on:
       - main
 
 jobs:
-  build-push-deploy:
-    runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout code
+      # 1️⃣ Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # 2️⃣ Verify Docker is available
+      - name: Check Docker
+        run: docker version
 
+      # 3️⃣ Login to Docker Hub
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: avani16/ai-pr-reviewer:latest
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: v1.29.0
-
-      - name: Configure kubeconfig
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" > ~/.kube/config
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Deploy to Kubernetes
+      # 4️⃣ Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t avani16/ai-pr-reviewer:latest .
+
+      # 5️⃣ Push Docker image
+      - name: Push Docker image
+        run: |
+          docker push avani16/ai-pr-reviewer:latest
+
+      # 6️⃣ Verify Kubernetes context (Minikube)
+      - name: Check Kubernetes context
+        run: |
+          kubectl config current-context
+          kubectl get nodes
+
+      # 7️⃣ Deploy to Kubernetes (Minikube)
+      - name: Deploy to Minikube
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl rollout restart deployment ai-pr-reviewer
+          kubectl rollout status deployment ai-pr-reviewer
