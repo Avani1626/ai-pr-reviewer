@@ -143,3 +143,81 @@ npm run dev
 docker pull avani16/ai-pr-reviewer:latest
 docker run -p 8000:8000 avani16/ai-pr-reviewer:latest
 
+
+📊 Monitoring & Alerting
+
+This project includes a complete Kubernetes monitoring and alerting setup to ensure application reliability and fast incident detection.
+
+Stack Used
+
+Prometheus – Metrics collection and alert evaluation
+
+Alertmanager – Alert routing, grouping, and notification handling
+
+Grafana – Metrics visualization and dashboards
+
+kube-prometheus-stack (Helm) – Kubernetes-native monitoring stack
+
+MailHog – In-cluster SMTP server for local email alert testing
+
+Architecture Overview
+Application (ai-pr-reviewer)
+        ↓
+Kubernetes Metrics (kube-state-metrics)
+        ↓
+Prometheus (monitoring namespace)
+        ↓
+Alertmanager
+        ↓
+SMTP (MailHog)
+        ↓
+Email Inbox (MailHog UI)
+
+Implemented Alerts
+
+AiPrReviewerPodRestarting
+Triggers when the application container restarts within the same pod, indicating instability.
+
+KubePodCrashLooping
+Detects pods stuck in a CrashLoopBackOff state.
+
+KubeDeploymentReplicasMismatch
+Alerts when desired and available replicas differ.
+
+Default Kubernetes alerts
+Includes Watchdog, TargetDown, and etcd-related alerts for cluster health.
+
+Alert Delivery Validation
+
+Alerts are validated end-to-end using an in-cluster SMTP server (MailHog).
+
+Both FIRING and RESOLVED email notifications are confirmed.
+
+Alert deduplication and repeat intervals are configured for predictable testing.
+
+MailHog UI allows safe, deterministic testing without external email providers.
+
+Key Learnings
+
+Deleting pods does not increment restart metrics; only container restarts do.
+
+Alertmanager deduplicates alerts and sends notifications only on state changes.
+
+kube-prometheus-stack ships with a default null receiver and must be explicitly overridden for email delivery.
+
+Using MailHog enables reliable local testing without SMTP throttling or silent failures.
+
+Local Access (Development)
+# Alertmanager UI
+kubectl port-forward -n monitoring pod/alertmanager-kube-prometheus-stack-alertmanager-0 19093:9093
+
+# MailHog UI
+kubectl port-forward -n monitoring svc/mailhog 18025:8025
+
+# Grafana UI
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+
+Outcome
+
+This setup provides production-style observability with deterministic local testing, enabling confident monitoring, alert validation, and incident response workflows.
+
