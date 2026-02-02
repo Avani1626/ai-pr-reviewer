@@ -1,0 +1,18 @@
+alertmanager:
+  config:
+    global:
+      smtp_smarthost: "mailhog.monitoring.svc.cluster.local:1025"
+      smtp_from: "alertmanager@local.dev"
+      smtp_require_tls: false
+
+    route:
+      receiver: "mailhog"
+      group_wait: 10s
+      group_interval: 30s
+      repeat_interval: 30s
+
+    receivers:
+    - name: "mailhog"
+      email_configs:
+      - to: "test@local.dev"
+        send_resolved: true
